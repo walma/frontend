@@ -1,0 +1,13 @@
+body {
+    /* @todo отступ сверху нужен для размещения тулбара, НО при узком окне (мобильная версия), тулбар тоже отступает сверху :( надо как-то починить ;) */
+    padding-top: 60px;
+    margin: 0px auto;
+    max-width: 1200px;
+}
+
+.cmf-frontadmin-node {
+}
+
+.cmf-frontadmin-node:hover {
+    outline: 1px dashed red;
+}

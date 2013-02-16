@@ -1,0 +1,44 @@
+* {
+	font-size: 15px;
+	font-family: arial, sans-serif;
+	margin: 0;
+	padding: 0;
+}
+
+.Hidden {
+	display: none;
+}
+
+.Content {
+	text-align: justify;
+	width: 900px;
+	border-right: 10px solid #eee;
+	padding: 10px 15px 10px 10px;
+}
+
+.Content p {
+	margin: 10px 0;
+	color: #333;
+}
+
+.ContentBlue {
+	border-right-color: #ccf;
+}
+
+.ContentBlue p {
+	color: #005;
+}
+
+.ContentBlue img {
+	border: 5px solid #ddf;
+}
+
+.ImageLeft {
+	float: left;
+	margin: 10px 10px 10px 0;
+}
+
+.ImageRight {
+	float: right;
+	margin: 10px 0 10px 10px;
+}

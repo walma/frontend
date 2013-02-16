@@ -1,0 +1,294 @@
+<!DOCTYPE HTML>
+<html lang="ru-RU">
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+    <link rel="stylesheet" type="text/css" href="css/main.css" />
+    <link rel="stylesheet" type="text/css" href="css/sc.overlay.css" />
+    <link href="bootstrap/css/bootstrap.css" rel="stylesheet">
+    <link href="css/cmf_frontend.css" rel="stylesheet">
+    <!--<script src="http://yandex.st/jquery/1.8.2/jquery.js"></script>-->
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script type="text/javascript" src="bootstrap/js/bootstrap.js"></script>
+    <script type="text/javascript" src="js/sc.overlay-1.0.js"></script>
+    <script type="text/javascript" src="js/main.js"></script>
+    <script type="text/javascript" src="js/cmf_frontend.js"></script>
+
+    <script type="text/javascript">
+    /**
+     * Страница с включенным режимом EIP (Edit In Place) отличается от обычной страницы только наличием тегов:
+     * <div class ="cmf-frontadmin-node" id="__node_x">
+     *     ...
+     * </div>
+     *
+     * А также наличием данных в cmf_front_controls.node для этих блоков.
+     *
+     * Весь остальной код, должен быть вынесен во внешние файлы.
+     */
+    var cmf_front_controls = {
+        // Тулбар должен конфигурироваться. Пока что можно сделать конфигурирование всех даных здесь, а дальше надо будет подумать,
+        // как часть данных подкгружать через аякс.
+        "toolbar": {
+            "left": {
+                "settings": {
+                    "title": "Настройки",
+                    "items": {
+                        "users": {
+                            "title": "Пользователи",
+                            "uri": "#/admin/users",
+                            "ico": "users"
+                        },
+                        "config": {
+                            "title": "Конфигурация",
+                            "uri": "#/admin/config/",
+                            "ico": "off"
+                        }
+                    }
+                }
+            },
+            "right": {
+                "eip-toggle": ["Просмотр", "Редактирование"],
+                "user": {
+                    "title": "Админстратор",
+                    "items": {
+                        "profile": {
+                            "title": "Мой профиль",
+                            "uri": "#/user/profile/",
+                            "ico": "user"
+                        },
+                        "diviver1": "diviver",
+                        "logout": {
+                            "title": "Выход",
+                            "uri": "#/user/logout/",
+                            "ico": "off"
+                        }
+                    }
+                }
+            }
+        },
+
+        // фронт контролсы для нод.
+        "node": {
+            /**
+             * По ID ноды, срипт должен будет найти все блоки с классом "cmf-frontadmin-node" у которых есть атрибут id вида "__node_{id}"
+             * и создать ПЛАВАЮЩИЙ блок поверх страницы, с кнопками следующей структуры:
+             */
+            '3': {
+                "edit": {
+                    "title": "Редактировать",
+                    "descr": "Редактировать текстовый блок",
+                    "uri": "#/admin/node/3/edit/",
+                    "ico": "edit",
+                    "default": true // Это действие будет вынесено в кнопку.
+                },
+                "cmf-node-properties": {
+                    "title": "Свойства ноды",
+                    "uri": "#/admin/structure/node/3/",
+                    "ico": "node_props"
+                }
+            }
+        }
+    };
+    </script>
+</head>
+<body>
+    <!-- @todo Тулбар должен отсуствовать в вёрстке, а рендериться исключительно внешним скриптом -->
+    <div class="navbar navbar-inverse navbar-fixed-top">
+    <div class="navbar-inner">
+        <div class="">
+            <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </a>
+            <a class="brand" href="#">Smart Core CMF</a>
+            <div class="nav-collapse collapse">
+                <ul class="nav">
+                    <li class="divider-vertical"></li>
+                    <li class="dropdown">
+                        <a href="#" role="button" class="dropdown-toggle" data-toggle="dropdown"><i class="icon-cog icon-white"></i> Настройки<b class="caret"></b></a>
+                        <ul class="dropdown-menu" role="menu">
+                            <!-- @todo сейчас при клике на пункте "Пользователи" меню не изчезает, а остаётся поверх оверлея.  -->
+                            <li><a tabindex="-1" href="#" class="popup-trigger"><i class="icon-user"></i> Пользователи</a></li>
+                            <li><a tabindex="-1" href="#"><i class="icon-cog"></i> Глобальная конфигурация</a></li>
+                            <li><a tabindex="-1" href="#"><i class="icon-info-sign"></i> Информация о системе</a></li>
+                            <li><a tabindex="-1" href="#"><i class="icon-briefcase"></i> Блоки</a></li>
+                            <li><a tabindex="-1" href="#"><i class="icon-book"></i> Модули</a></li>
+                            <li><a tabindex="-1" href="#"><i class="icon-home"></i> Сайт</a></li>
+                        </ul>
+                    </li>
+                    <li class="dropdown">
+                        <a href="#" role="button" class="dropdown-toggle" data-toggle="dropdown"><i class="icon-folder-open icon-white"></i> Структура<b class="caret"></b></a>
+                        <ul class="dropdown-menu" role="menu" >
+                            <li><a tabindex="-1" href="#"><i class="icon-plus"></i> Добавить папку </a></li>
+                            <li><a tabindex="-1" href="#"><i class="icon-pencil"></i> Редактировать папку </a></li>
+                            <li><a tabindex="-1" href="#"><i class="icon-book"></i> Вся структура </a></li>
+                            <li class="divider"></li>
+                            <li><a tabindex="-1" href="#"><i class="icon-plus"></i> Добавить модуль </a></li>
+                            <li><a tabindex="-1" href="#"><i class="icon-book"></i> Все модули </a></li>
+                        </ul>
+                    </li>
+                </ul>
+
+
+                <div class="pull-right">
+                    <button type="button" class="btn btn-primary span2" data-toggle="button" class-toggle="btn-danger">Просмотр</button>
+                    <ul class="nav pull-right">
+                        <li class="dropdown"><a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="icon-user icon-white"></i> Администратор <b class="caret"></b></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="#/user/preferences"><i class="icon-cog"></i> Мой профиль</a></li>
+                            <li><a href="#/help/support"><i class="icon-question-sign"></i> Справка</a></li>
+                            <li class="divider"></li>
+                            <li><a href="#/auth/logout"><i class="icon-off"></i> Выход</a></li>
+                        </ul></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+
+    <!-- конец меню -->
+    <div class="container-fluid" >
+      <div class="row-fluid">
+        <div class="span3">
+          <div class="node well sidebar-nav">
+            <ul class="nav nav-list">
+              <li class="nav-header">Sidebar</li>
+              <li class="active"><a href="#">Link</a></li>
+              <li><a href="#">Link</a></li>
+              <li><a href="#">Link</a></li>
+              <li><a href="#">Link</a></li>
+              <li class="nav-header">Sidebar 2</li>
+              <li><a href="#">Link</a></li>
+              <li><a href="#">Link</a></li>
+              <li><a href="#">Link</a></li>
+              <li><a href="#">Link</a></li>
+              <li class="nav-header">Sidebar 3</li>
+              <li><a href="#">Link</a></li>
+              <li><a href="#">Link</a></li>
+              <li><a href="#">Link</a></li>
+            </ul>
+          </div><!--/.well -->
+        </div><!--/span-->
+        <div class="span9">
+
+        <!--
+        <div class="row-fluid">
+            <div class="span4 node">
+                <h2>Heading</h2>
+                <p>Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna mollis euismod. Donec sed odio dui. </p>
+                <p><a class="btn" href="#">View details »</a></p>
+            </div>
+            <div class="span4 node">
+                <h2>Heading</h2>
+                <p>Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna mollis euismod. Donec sed odio dui. </p>
+                <p><a class="btn" href="#">View details »</a></p>
+            </div>
+            <div class="span4 node">
+                <h2>Heading</h2>
+                <p>Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna mollis euismod. Donec sed odio dui. </p>
+                <p><a class="btn" href="#">View details »</a></p>
+            </div>
+        </div>-->
+
+          <div class="row-fluid">
+            <div class="span4 node">
+                <div class="cmf-frontadmin-node" id="__node_1">
+                  <h2>Heading</h2>
+                  <p>Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna mollis euismod. Donec sed odio dui. </p>
+                  <p><a class="btn" href="#">View details »</a></p>
+                </div>
+            </div><!--/span-->
+            <div class="span4 node">
+                <div class="cmf-frontadmin-node" id="__node_2">
+                      <h2>Heading</h2>
+                      <p>Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna mollis euismod. Donec sed odio dui. </p>
+
+                    <div class="btn-group">
+                        <button class="btn btn-info">Info</button>
+                        <button class="btn btn-info dropdown-toggle" data-toggle="dropdown"><span class="caret"></span></button>
+                        <ul class="dropdown-menu">
+                          <li><a href="#">Action</a></li>
+                          <li><a href="#">Another action</a></li>
+                          <li><a href="#">Something else here</a></li>
+                          <li class="divider"></li>
+                          <li><a href="#">Separated link</a></li>
+                        </ul>
+                    </div>
+
+                    <p><a data-original-title="A Title" data-placement="top" href="#" id="pop1" class="btn btn-large btn-danger" rel="popover" data-content="And here's some amazing content. It's very engaging. right?">Click to toggle popover</a></p>
+                </div>
+            </div><!--/span-->
+
+              <div class="span4 node">
+                <div class="cmf-frontadmin-node" id="__node_3">
+                    <div class="btn-group">
+                        <!--<a class="btn" href="#"><i class="icon-plus"></i></a>-->
+                        <button class="btn popup-trigger" title="Редактировать текстовый блок" >Редактировать</button>
+                        <button class="btn dropdown-toggle" data-toggle="dropdown"><span class="caret"></span></button>
+                        <ul class="dropdown-menu">
+                            <li><a href="#" title="Редактировать текстовый блок" class="popup-trigger"><strong>Редактировать</strong></a></li>
+                            <li class="divider"></li>
+                            <li><a href="#" class="popup-trigger">Свойства ноды</a></li>
+                        </ul>
+                    </div>
+                    <h2>Heading</h2>
+                    <p>asd</p>
+                </div>
+            </div><!--/span-->
+          </div><!--/row-->
+
+            <div class="hero-unit node">
+                <div class="cmf-frontadmin-node" id="__node_4">
+                <h1>Hello, world!</h1>
+                <p>С точки зрения банальной эрудиции каждый индивидуум, критически мотивирующий абстракцию, не может игнорировать критерии утопического субъективизма, концептуально интерпретируя общепринятые дефанизирующие поляризаторы, поэтому консенсус, достигнутый диалектической материальной классификацией всеобщих мотиваций в парадогматических связях предикатов, решает проблему усовершенствования формирующих геотрансплантационных квазипузлистатов всех кинетически коррелирующих аспектов. Исходя из этого, мы пришли к выводу, что каждый произвольно выбранный предикативно абсорбирующий объект.</p>
+                <hr />
+                <p>Взаимодействие корпорации и клиента амбивалентно. Агентская комиссия специфицирует мониторинг активности, используя опыт предыдущих кампаний. Ассортиментная политика предприятия развивает стратегический маркетинг, используя опыт предыдущих кампаний. Более того, взаимодействие корпорации и клиента искажает бренд, расширяя долю рынка.</p>
+                <hr />
+                <p>Сервисная стратегия деятельно искажает продвигаемый медиаплан, опираясь на опыт западных коллег. Внутрифирменная реклама, согласно Ф.Котлеру, откровенно цинична. Торговая марка исключительно уравновешивает презентационный материал, полагаясь на инсайдерскую информацию. Наряду с этим, узнавание бренда вполне выполнимо. Организация слубы маркетинга, согласно Ф.Котлеру, усиливает фактор коммуникации, осознавая социальную ответственность бизнеса. Экспертиза выполненного проекта восстанавливает потребительский презентационный материал, полагаясь на инсайдерскую информацию.</p>
+                <p><a class="btn btn-primary btn-large popup-trigger">Learn more »</a></p>
+                </div>
+            </div>
+
+        </div><!--/span-->
+
+      </div><!--/row-->
+
+        <footer>
+        </footer>
+    </div>
+
+
+    <!-- @todo сделать загрузку контента в оверлей через аякс из overlay_content.html -->
+
+    <div id="popup-content" class="Content ContentBlue Hidden">
+
+        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras semper, enim placerat condimentum lobortis, lorem orci vulputate magna, a lobortis odio nulla sed nisl. Curabitur tincidunt, lorem et vestibulum viverra, dolor lorem suscipit quam, sed ultrices ligula enim ut leo. Phasellus pretium urna sed ligula vulputate a venenatis lorem vestibulum. Proin eget lacus vitae est tincidunt mollis eu ac ligula. Suspendisse potenti. Curabitur sed vulputate enim. In hac habitasse platea dictumst. Integer nisi dolor, cursus vel aliquam eu, hendrerit vitae nulla. Praesent varius, dolor ut mattis consequat, nibh nisl commodo purus, et sollicitudin turpis nibh eget urna. Cras dapibus fermentum eros, id ornare purus venenatis non. Vestibulum ac nulla sapien, in hendrerit velit. Proin congue blandit mi id lacinia. Integer vitae nulla enim, non mollis lacus. Vivamus diam turpis, viverra mattis convallis eu, blandit eget sapien. In id libero lorem, nec feugiat enim. Nulla accumsan viverra arcu eget mattis.</p>
+
+        <img src="i/apples.001.jpg" class="ImageLeft" />
+
+        <p>Nulla id placerat odio. Morbi auctor, turpis eu euismod ultrices, nibh lorem convallis mauris, ac vestibulum dolor leo nec velit. Ut vitae nisl id nulla facilisis congue. Nunc tortor justo, tincidunt sit amet facilisis sed, ornare et leo. Donec id dui id erat egestas aliquet eu nec turpis. In feugiat faucibus condimentum. Maecenas luctus auctor ipsum, quis mattis eros pulvinar aliquet. Nam ut urna sed nisi porttitor egestas. Cras sollicitudin diam et enim pharetra suscipit a non nulla. Mauris et sapien at elit facilisis tempus. Proin vel metus vitae felis mollis pretium. Aenean pellentesque tincidunt auctor. Nam tristique, mi non consectetur dapibus, quam eros tincidunt felis, a rutrum ante libero ac est.</p>
+        <p>Nulla lectus turpis, consectetur sit amet convallis et, lobortis eget nisl. Fusce pharetra posuere quam, non facilisis eros tristique tincidunt. Morbi dapibus auctor rutrum. Donec interdum quam et augue eleifend ut rutrum urna aliquam. Cras dapibus pulvinar leo vitae suscipit. Nullam aliquam semper felis a facilisis. In dui arcu, pulvinar quis vestibulum sit amet, tempus quis arcu. Nulla sed mi a tortor malesuada vehicula. Curabitur sit amet elementum est. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Morbi eget rhoncus lacus. Vivamus ligula purus, euismod eu dignissim id, dapibus at nisl.</p>
+        <p>Nam eget risus at ante imperdiet mollis eu non enim. Morbi eros est, tristique a iaculis vel, sagittis eget velit. Nulla odio sem, tempor scelerisque luctus ac, cursus iaculis orci. Aenean nec massa lorem. Curabitur arcu est, accumsan in sagittis vel, dapibus porttitor augue. Morbi at magna ante. Praesent lacinia condimentum tortor vitae euismod. Morbi porta convallis ligula, non pharetra risus varius non. Etiam nulla nisi, blandit vel interdum vitae, tempor vitae eros. Donec eros odio, porta in pharetra non, mattis et sem. Nullam porta ipsum nec nibh vulputate consequat. Quisque nec odio tellus. Morbi id sem mollis magna condimentum volutpat. Sed luctus, nisi at pharetra interdum, justo nunc sollicitudin sapien, id facilisis massa dolor sed nunc.</p>
+
+        <img src="i/apples.002.jpg" class="ImageRight" />
+
+        <p>Suspendisse non turpis eu nibh tempor rhoncus. Etiam eu erat sed magna laoreet varius pretium ac tortor. Aliquam odio nisi, dignissim id cursus in, semper ut sapien. Phasellus bibendum blandit nulla in consequat. Nam semper tortor et arcu pulvinar non aliquam metus varius. Etiam volutpat, lectus id aliquet eleifend, urna urna adipiscing nulla, quis dapibus urna velit eu enim. Praesent leo felis, vestibulum eu tempus eu, sodales ac nisi. Quisque sit amet turpis tortor, at viverra eros. Phasellus pulvinar metus nec orci tempus rhoncus cursus ligula lobortis. Fusce vestibulum ipsum nec lorem vulputate vitae tincidunt velit semper.</p>
+        <p>Vivamus pharetra nunc dignissim lacus posuere congue. Praesent ornare ligula quis nulla luctus vel rhoncus turpis pulvinar. Donec congue luctus venenatis. Pellentesque porttitor ipsum at elit pharetra vel dictum eros hendrerit. Quisque quis erat vitae nunc pellentesque facilisis. Pellentesque rutrum pharetra ipsum sed consequat. Donec fermentum mauris et sapien tristique malesuada. Ut ac tellus ac justo eleifend pharetra. Sed velit nunc, adipiscing ut tincidunt sit amet, ullamcorper ut urna. Cras pellentesque tristique leo, sed tincidunt lectus rhoncus ac. Phasellus vehicula sodales sem, vel accumsan tellus consequat sed. Morbi id leo massa, vitae mollis eros. Etiam elementum blandit sapien sit amet congue. Nullam facilisis tincidunt est, quis dictum velit iaculis id. Phasellus non eros vitae nunc varius euismod in at erat. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae;</p>
+
+        <img src="i/apples.003.jpg" class="ImageLeft" />
+
+        <p>Pellentesque ante ante, tincidunt eget vehicula ut, venenatis quis nulla. Maecenas faucibus, libero non tincidunt ullamcorper, nisi tellus tincidunt lorem, id lacinia augue metus pellentesque lacus. Nulla facilisis venenatis lacus id tempus. Vivamus ac elit lectus. Integer non lectus vitae elit mattis cursus ac nec magna. Donec laoreet lectus et augue varius a sodales arcu gravida. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Morbi orci lectus, tempus id ullamcorper vitae, tincidunt placerat arcu. Nulla malesuada, velit sit amet facilisis adipiscing, velit enim mattis arcu, vel dictum nunc orci et tortor. Maecenas porttitor odio et orci vulputate fermentum. Maecenas scelerisque mauris et sem suscipit nec vestibulum urna tempus. In vel tellus enim, vel tempus dolor.</p>
+        <p>In euismod placerat turpis, a fringilla arcu aliquam in. Praesent egestas, velit non ultrices vulputate, orci erat gravida tellus, convallis egestas neque lorem a justo. Donec convallis ligula a nibh tristique nec porttitor massa consectetur. Fusce sed neque posuere ligula pulvinar sollicitudin. Nunc sed odio massa, eu feugiat orci. Praesent quis enim et felis commodo posuere quis a mi. Nullam pulvinar imperdiet risus sed pellentesque. In scelerisque suscipit iaculis. Fusce dui risus, fringilla vitae dignissim in, sollicitudin sit amet tellus. Ut dictum sapien id dui dignissim luctus. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean cursus, magna quis luctus laoreet, nunc arcu pretium nisl, vitae semper orci elit nec neque. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Pellentesque tortor purus, dictum in iaculis eget, facilisis sit amet erat. Sed elit felis, pharetra a cursus quis, faucibus eget erat. In lacus orci, eleifend ut congue at, luctus ullamcorper lectus.</p>
+        <p>Ut id est eget ante iaculis faucibus. Aliquam vitae tempus velit. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris eu neque justo, ac faucibus enim. Etiam ante metus, rhoncus nec vulputate nec, pretium feugiat diam. Sed condimentum hendrerit lacus quis euismod. Maecenas ac dolor augue. Nam laoreet blandit velit tristique mollis. Donec congue justo vel neque pretium ac consectetur nunc cursus. Quisque pretium, ligula at posuere facilisis, diam leo volutpat metus, nec fringilla odio elit quis leo. Aliquam erat volutpat. Sed eu felis non mi malesuada tempus. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam vehicula mollis nisi et congue. Nam auctor nibh sit amet risus cursus non ultricies sapien feugiat. Morbi condimentum arcu sed augue porta sit amet varius metus ornare.</p>
+
+        <img src="i/apples.004.jpg" class="ImageRight" />
+
+        <p>Sed vel congue massa. Ut odio mauris, gravida sit amet dignissim rhoncus, faucibus at tellus. Phasellus fringilla consequat lorem non vulputate. Donec justo dui, adipiscing id lobortis ac, iaculis feugiat erat. Suspendisse commodo gravida lectus vel pretium. Donec dictum tristique risus eu tempus. Aliquam ultricies lorem id urna iaculis a elementum ante commodo. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Sed at consectetur enim. Nunc diam erat, aliquam quis vulputate non, ullamcorper et erat.</p>
+        <p>Suspendisse vehicula ipsum et velit suscipit nec rhoncus nunc sagittis. Proin rutrum imperdiet commodo. Suspendisse et neque tortor. Pellentesque at nibh turpis. Phasellus dapibus scelerisque congue. Cras feugiat nibh mi. Aenean a magna neque, non dictum orci. Suspendisse nulla sapien, luctus nec dapibus eget, gravida in magna. Curabitur imperdiet, felis vel eleifend rutrum, ipsum felis porttitor risus, sit amet facilisis nunc nisi et diam.</p>
+
+    </div>
+
+</body>
+</html>
